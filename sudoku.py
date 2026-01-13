@@ -174,6 +174,8 @@ def draw_bottom_text(win, play_time, won):
 
     time_text = font.render(format_time(play_time), 1, (0, 0, 0))
     win.blit(time_text, (WIDTH - 120, 560))
+    text_undo = font.render("Z (Zurück)", 1, (0, 0, 0))
+    win.blit(text_undo, (92, 580))
 
     if won:
         large_font = pygame.font.SysFont("arial", 60)
@@ -202,6 +204,7 @@ def main():
     selected = None
     running = True
     won = False
+    history = []
 
     start_time = time.time()
     play_time = 0
@@ -225,16 +228,23 @@ def main():
                     selected = None
                     won = False
                     start_time = time.time()
+                    history = []
                 if event.key == pygame.K_m:
                     board, original_board = generate_new_board("MITTEL")
                     selected = None
                     won = False
                     start_time = time.time()
+                    history = []
                 if event.key == pygame.K_s:
                     board, original_board = generate_new_board("SCHWER")
                     selected = None
                     won = False
                     start_time = time.time()
+                    history = []
+                if event.key == pygame.K_z:
+                    if history:
+                        last_row, last_col, last_val = history.pop()
+                        board[last_row][last_col] = last_val
                 
                 if selected:
                     col, row = selected
@@ -250,17 +260,22 @@ def main():
                 if selected and not won:
                     col, row = selected
                     if original_board[row][col] == 0:
-                        if event.key == pygame.K_1 or event.key == pygame.K_KP_1: board[row][col] = 1
-                        if event.key == pygame.K_2 or event.key == pygame.K_KP_2: board[row][col] = 2
-                        if event.key == pygame.K_3 or event.key == pygame.K_KP_3: board[row][col] = 3
-                        if event.key == pygame.K_4 or event.key == pygame.K_KP_4: board[row][col] = 4
-                        if event.key == pygame.K_5 or event.key == pygame.K_KP_5: board[row][col] = 5
-                        if event.key == pygame.K_6 or event.key == pygame.K_KP_6: board[row][col] = 6
-                        if event.key == pygame.K_7 or event.key == pygame.K_KP_7: board[row][col] = 7
-                        if event.key == pygame.K_8 or event.key == pygame.K_KP_8: board[row][col] = 8
-                        if event.key == pygame.K_9 or event.key == pygame.K_KP_9: board[row][col] = 9
-                        if event.key == pygame.K_BACKSPACE or event.key == pygame.K_DELETE:
-                            board[row][col] = 0
+                        input_num = None
+                        if event.key == pygame.K_1 or event.key == pygame.K_KP_1: input_num = 1
+                        if event.key == pygame.K_2 or event.key == pygame.K_KP_2: input_num = 2
+                        if event.key == pygame.K_3 or event.key == pygame.K_KP_3: input_num = 3
+                        if event.key == pygame.K_4 or event.key == pygame.K_KP_4: input_num = 4
+                        if event.key == pygame.K_5 or event.key == pygame.K_KP_5: input_num = 5
+                        if event.key == pygame.K_6 or event.key == pygame.K_KP_6: input_num = 6
+                        if event.key == pygame.K_7 or event.key == pygame.K_KP_7: input_num = 7
+                        if event.key == pygame.K_8 or event.key == pygame.K_KP_8: input_num = 8
+                        if event.key == pygame.K_9 or event.key == pygame.K_KP_9: input_num = 9
+                        if event.key == pygame.K_BACKSPACE or event.key == pygame.K_DELETE: input_num = 0
+
+                        if input_num is not None:
+                            if board[row][col] != input_num:
+                                history.append((row, col, board[row][col]))
+                                board[row][col] = input_num
                         
                         if check_win(board):
                             won = True
